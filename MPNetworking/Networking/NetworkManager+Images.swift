@@ -11,11 +11,11 @@ import UIKit
 
 public extension NetworkManager {
     
-    public func downloadImage(absoluteUrlString: String, callback: @escaping (UIImage?,Error?) -> Void) {
+    func downloadImage(absoluteUrlString: String, callback: @escaping (UIImage?,Error?) -> Void) {
         self.downloadImage(absoluteUrlString: absoluteUrlString, cachingOptions: self.imageCache.cachingOptions, callback: callback)
     }
     
-    public func downloadImage(absoluteUrlString: String,
+    func downloadImage(absoluteUrlString: String,
                        cachingOptions: ImageCache.CachingOptions,
                        callback: @escaping (UIImage?,Error?) -> Void) {
         do {

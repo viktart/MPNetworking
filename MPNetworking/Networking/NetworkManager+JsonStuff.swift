@@ -10,8 +10,8 @@ import Foundation
 
 public extension NetworkManager {
     
-    public typealias RequestParameters = Dictionary<String, String>?
-    public typealias CallbackType<CT: Decodable> = ((CT?, Error?)->Void)?
+    typealias RequestParameters = Dictionary<String, String>?
+    typealias CallbackType<CT: Decodable> = ((CT?, Error?)->Void)?
     
     // MARK: - Compose Request
     

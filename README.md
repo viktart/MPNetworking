@@ -1,5 +1,5 @@
 # MPNetworking
-Compact network library in Swift 4
+Compact network library written in Swift
 
 
 ## Requirements
