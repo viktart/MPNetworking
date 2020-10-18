@@ -9,9 +9,9 @@
 import Foundation
 
 public extension NetworkManager {
-    
+
+    // TODO: do we need this one?
     typealias RequestParameters = Dictionary<String, String>?
-    typealias CallbackType<CT: Decodable> = ((CT?, Error?)->Void)?
     
     // MARK: - Compose Request
     
@@ -46,47 +46,48 @@ public extension NetworkManager {
     
     // MARK: - Perform request
     
-    func performJSONRequest<CT: Decodable>(relativeURLString: String,
+    func performJSONRequest<T: Decodable>(relativeURLString: String,
                                            httpMethod: HttpMethod,
                                            parameters: RequestParameters,
-                                           callback: CallbackType<CT>) {
+                                           callback: @escaping (Result<T, Error>) -> Void) {
+        // TODO: catch?
         let request = try! self.composeJSONRequest(relativeURLString: relativeURLString, httpMethod: httpMethod, parameters: parameters)
-        self.performJSONRequest(request: request) { (responseObject, error) in
-            callback?(responseObject, error)
-        }
+        self.performJSONRequest(request: request, callback: callback)
     }
     
-    func performJSONRequest<CT: Decodable>(url: URL,
+    func performJSONRequest<T: Decodable>(url: URL,
                                            httpMethod: HttpMethod,
                                            parameters: RequestParameters,
-                                           callback: CallbackType<CT>) {
+                                           callback: @escaping (Result<T, Error>) -> Void) {
         let request = try! self.composeJSONRequest(url: url, httpMethod: httpMethod, parameters: parameters)
         self.performJSONRequest(request: request, callback: callback)
     }
     
-    internal func performJSONRequest<CT: Decodable>(request: Request,
-                                           callback: CallbackType<CT>) {
-        
+    internal func performJSONRequest<T: Decodable>(request: Request,
+                                           callback: @escaping (Result<T, Error>) -> Void) {
+
+        typealias ResultT = Result<T, Error>
+
         self.performDataRequest(request: request) { (data, response, error) in
             guard error == nil else {
                 LogError(error!)
-                callback?(nil, error)
+                callback(ResultT.failure(error!))
                 return
             }
             
             guard let data = data else {
                 LogError(String(format: "Data is nil\n%@", response ?? ""))
-                callback?(nil, CustomError.noData(request: request))
+                callback(ResultT.failure(CustomError.noData(request: request)))
                 return
             }
             
             do {
                 let decoder = JSONDecoder()
-                let responseObject = try decoder.decode(CT.self, from: data)
-                callback?(responseObject, nil)
+                let responseObject = try decoder.decode(T.self, from: data)
+                callback(ResultT.success(responseObject))
             } catch let error {
                 LogError(error)
-                callback?(nil, error)
+                callback(ResultT.failure(error))
             }
         }
     }
